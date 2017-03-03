@@ -1,10 +1,14 @@
 package com.it.keithxiaoy.qqkeithxiaoy.view;
 
+import android.Manifest;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.PermissionChecker;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
@@ -15,6 +19,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.it.keithxiaoy.qqkeithxiaoy.BaseActivity;
+import com.it.keithxiaoy.qqkeithxiaoy.MainActivity;
 import com.it.keithxiaoy.qqkeithxiaoy.R;
 import com.it.keithxiaoy.qqkeithxiaoy.presenter.LoginPresenter;
 import com.it.keithxiaoy.qqkeithxiaoy.presenter.LoginPresenterImpl;
@@ -27,6 +32,7 @@ import butterknife.OnClick;
 
 public class LoginActivity extends BaseActivity implements LoginView, TextView.OnEditorActionListener {
 
+    private static final int REQUEST_SDCARD = 1;
     @BindView(R.id.et_username)
     EditText mEtUsername;
     @BindView(R.id.til_username)
@@ -124,6 +130,15 @@ public class LoginActivity extends BaseActivity implements LoginView, TextView.O
         } else {
             mTilPwd.setErrorEnabled(false);
         }
+
+        //申请权限
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)!= PermissionChecker.PERMISSION_GRANTED){
+
+            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},REQUEST_SDCARD);
+
+            return;
+        }
+        
         //显示进度条
         showDialog("正在登录中...");
         //提交服务器
@@ -134,11 +149,17 @@ public class LoginActivity extends BaseActivity implements LoginView, TextView.O
     @Override
     public void afterLogin(Boolean isSuccess, String msg, String username, String pwd) {
         hideDialog();
-        //成功或者失败
+        /**
+         * 登录成功，保存用户名和密码到sp
+         * 跳转到MainActivity，并finish掉当前Activity
+         */
         if (isSuccess){
-            showToast(msg);
-        }else {
+            saveUser(username,pwd);
+            startActivity(MainActivity.class,true);
 
+        }else {
+        //失败，弹出吐司
+            showToast("登录失败："+ msg);
         }
     }
 
@@ -151,5 +172,30 @@ public class LoginActivity extends BaseActivity implements LoginView, TextView.O
             }
         }
         return false;
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode==REQUEST_SDCARD){
+            if (grantResults[0]==PermissionChecker.PERMISSION_GRANTED){
+                showToast("权限被允许了");
+                login();
+            }else{
+                showToast("没有SDCard权限，可能导致部分功能无法使用！");
+                /**
+                 * 显示进度条对话框
+                 */
+                showDialog("正在登录中...");
+                //3到20位字符（a-zA-Z0-9_）必须是字母开头
+                String username = mEtUsername.getText().toString().trim();
+                //3到20位的数字
+                String pwd = mEtPwd.getText().toString().trim();
+                mLoginPresenter.login(username, pwd);
+            }
+        }
+
+
     }
 }

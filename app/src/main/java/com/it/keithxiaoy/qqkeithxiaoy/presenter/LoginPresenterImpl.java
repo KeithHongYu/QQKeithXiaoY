@@ -1,10 +1,7 @@
 package com.it.keithxiaoy.qqkeithxiaoy.presenter;
 
-import android.util.Log;
-
-import com.hyphenate.EMCallBack;
 import com.hyphenate.chat.EMClient;
-import com.it.keithxiaoy.qqkeithxiaoy.util.ThreadUtils;
+import com.it.keithxiaoy.qqkeithxiaoy.adapter.CallbackAdapter;
 import com.it.keithxiaoy.qqkeithxiaoy.view.LoginView;
 
 /**
@@ -20,29 +17,15 @@ public class LoginPresenterImpl implements LoginPresenter {
 
     @Override
     public void login(final String userName, final String pwd) {
-        EMClient.getInstance().login(userName,pwd,new EMCallBack() {//回调
+        EMClient.getInstance().login(userName, pwd, new CallbackAdapter() {
             @Override
-            public void onSuccess() {
-//                EMClient.getInstance().groupManager().loadAllGroups();
-//                EMClient.getInstance().chatManager().loadAllConversations();
-                ThreadUtils.runMainThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        mLoginView.afterLogin(true,"登录成功",userName,pwd);
-                    }
-                });
-
-                Log.d("main", "登录聊天服务器成功！");
+            public void onMainSuccess() {
+                mLoginView.afterLogin(true,null,userName,pwd);
             }
 
             @Override
-            public void onProgress(int progress, String status) {
-
-            }
-
-            @Override
-            public void onError(int code, String message) {
-                Log.d("main", "登录聊天服务器失败！");
+            public void onMainError(int i, String s) {
+                mLoginView.afterLogin(false,s,userName,pwd);
             }
         });
     }
