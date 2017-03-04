@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -13,6 +14,10 @@ import android.widget.TextView;
 
 import com.hyphenate.util.DensityUtil;
 import com.it.keithxiaoy.qqkeithxiaoy.R;
+import com.it.keithxiaoy.qqkeithxiaoy.adapter.SlideBarAdapter;
+import com.it.keithxiaoy.qqkeithxiaoy.util.StringUtils;
+
+import java.util.List;
 
 /**
  * Created by xiaoY on 2017/3/3.
@@ -25,6 +30,8 @@ public class SlideBar extends View {
     private float mAvgHeight;
     private int mAvgWidth;
     private TextView mTvFloat;
+    private RecyclerView mRecyclerView;
+
     private static final String[] SECTIONS = {"搜", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N",
             "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
     private Paint mPaint;
@@ -95,21 +102,21 @@ public class SlideBar extends View {
             //获取SlideBar的父控件
             ViewGroup parent = (ViewGroup) getParent();
             mTvFloat = (TextView) parent.findViewById(R.id.tv_float);
- //           mRecyclerView = (RecyclerView) parent.findViewById(R.id.recyclerView);
+            mRecyclerView = (RecyclerView) parent.findViewById(R.id.recyclerView);
         }
         mTvFloat.setVisibility(VISIBLE);
         mTvFloat.setText(section);
 
-        //获取RecyclerView中总共有多少个条目
-//        SlideBarAdapter adapter = (SlideBarAdapter) mRecyclerView.getAdapter();
-//        List<String> dataList = adapter.getData();
-//        for (int i = 0; i < dataList.size(); i++) {
-//            String contact = dataList.get(i);
-//            if (StringUtils.getInitial(contact).equals(section)){
-//                mRecyclerView.smoothScrollToPosition(i);
-//                return;
-//            }
-//        }
+
+        SlideBarAdapter adapter = (SlideBarAdapter) mRecyclerView.getAdapter();
+        List<String> dataList = adapter.getData();
+        for (int i = 0; i < dataList.size(); i++) {
+            String contact = dataList.get(i);
+            if (StringUtils.getInital(contact).equalsIgnoreCase(section)){
+                mRecyclerView.smoothScrollToPosition(i);
+                return;
+            }
+        }
 
     }
 

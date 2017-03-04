@@ -1,6 +1,7 @@
 package com.it.keithxiaoy.qqkeithxiaoy.widget;
 
 import android.content.Context;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -34,4 +35,12 @@ public class ContactLayout extends RelativeLayout {
         mTvFloat = (TextView) findViewById(R.id.tv_float);
         mSlideBar = (SlideBar) findViewById(R.id.slideBar);
     }
+
+    public void setAdapter(RecyclerView.Adapter adapter){
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+        linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mRecyclerView.setLayoutManager(linearLayoutManager);
+        mRecyclerView.setAdapter(adapter);
+    }
+
 }

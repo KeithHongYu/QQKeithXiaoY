@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import com.avos.avoscloud.AVOSCloud;
 import com.hyphenate.chat.EMClient;
 import com.hyphenate.chat.EMOptions;
+import com.it.keithxiaoy.qqkeithxiaoy.db.DBUtils;
 
 import java.util.Iterator;
 import java.util.List;
@@ -21,6 +22,11 @@ public class MyApplication extends Application {
         super.onCreate();
         initHuanXin();
         initAVOS();
+        initDB();
+    }
+
+    private void initDB() {
+        DBUtils.initDB(this);
     }
 
     private void initAVOS() {

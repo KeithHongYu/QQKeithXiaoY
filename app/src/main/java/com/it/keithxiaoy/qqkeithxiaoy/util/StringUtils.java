@@ -19,4 +19,11 @@ public class StringUtils {
         }
         return pwd.matches("^\\d{3,20}$");
     }
+
+    public static String getInital(String username){
+        if (TextUtils.isEmpty(username)){
+            return "搜";
+        }
+        return username.substring(0,1).toUpperCase();
+    }
 }
