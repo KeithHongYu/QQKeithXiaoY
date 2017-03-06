@@ -38,6 +38,12 @@ public class ContactPresenterImpl implements ContactPresenter {
         contactsList.clear();
         contactsList.addAll(contacts);
         mContactView.onInitContact(contactsList);
+        updateFromServer();
+    }
+
+    @Override
+    public void updateFromServer() {
+        final String currentUser = EMClient.getInstance().getCurrentUser();
         ThreadUtils.runSubThread(new Runnable() {
             @Override
             public void run() {
@@ -59,7 +65,7 @@ public class ContactPresenterImpl implements ContactPresenter {
                             mContactView.onUpdateContact(true,null);
                         }
                     });
-                   // 缓存到本地数据库
+                    // 缓存到本地数据库
                     DBUtils.updateContacts(currentUser,contactsList);
 
                 } catch (final HyphenateException e) {

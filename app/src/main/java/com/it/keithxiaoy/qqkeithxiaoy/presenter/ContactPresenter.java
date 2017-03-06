@@ -6,4 +6,6 @@ package com.it.keithxiaoy.qqkeithxiaoy.presenter;
 
 public interface ContactPresenter {
     void initContact();
+
+    void updateFromServer();
 }
