@@ -3,14 +3,22 @@ package com.it.keithxiaoy.qqkeithxiaoy;
 import android.app.ActivityManager;
 import android.app.Application;
 import android.content.pm.PackageManager;
+import android.util.Log;
 
 import com.avos.avoscloud.AVOSCloud;
+import com.hyphenate.EMContactListener;
 import com.hyphenate.chat.EMClient;
 import com.hyphenate.chat.EMOptions;
+import com.hyphenate.exceptions.HyphenateException;
 import com.it.keithxiaoy.qqkeithxiaoy.db.DBUtils;
+import com.it.keithxiaoy.qqkeithxiaoy.event.ContactUpdateEvent;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.Iterator;
 import java.util.List;
+
+import static android.content.ContentValues.TAG;
 
 /**
  * Created by xiaoY on 2017/3/1.
@@ -53,6 +61,49 @@ public class MyApplication extends Application {
         EMClient.getInstance().init(this, options);
         //在做打包混淆时，关闭debug模式，避免消耗不必要的资源
         EMClient.getInstance().setDebugMode(true);
+        initHuanxinListener();
+    }
+
+    private void initHuanxinListener() {
+        EMClient.getInstance().contactManager().setContactListener(new EMContactListener() {
+
+            @Override
+            public void onContactInvited(String username, String reason) {
+                //收到好友邀请
+
+                try {
+                    Log.d(TAG, "onContactInvited: "+username+"/"+reason+"/自动接收了邀请！");
+                    EMClient.getInstance().contactManager().acceptInvitation(username);
+                } catch (HyphenateException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFriendRequestAccepted(String s) {
+                //好友请求被同意
+            }
+
+            @Override
+            public void onFriendRequestDeclined(String s) {
+                //好友请求被拒绝
+            }
+
+            @Override
+            public void onContactDeleted(String username) {
+                //被删除时回调此方法
+                Log.d(TAG, "onContactDeleted: "+username);
+                EventBus.getDefault().post(new ContactUpdateEvent(false,username));
+            }
+
+
+            @Override
+            public void onContactAdded(String username) {
+                //增加了联系人时回调此方法
+                Log.d(TAG, "onContactAdded: "+username);
+                EventBus.getDefault().post(new ContactUpdateEvent(true,username));
+            }
+        });
     }
 
 

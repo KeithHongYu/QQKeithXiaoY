@@ -5,16 +5,23 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.it.keithxiaoy.qqkeithxiaoy.R;
 import com.it.keithxiaoy.qqkeithxiaoy.adapter.ContactAdapter;
+import com.it.keithxiaoy.qqkeithxiaoy.event.ContactUpdateEvent;
 import com.it.keithxiaoy.qqkeithxiaoy.presenter.ContactPresenter;
 import com.it.keithxiaoy.qqkeithxiaoy.presenter.ContactPresenterImpl;
 import com.it.keithxiaoy.qqkeithxiaoy.view.ContactView;
 import com.it.keithxiaoy.qqkeithxiaoy.widget.ContactLayout;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.List;
 
@@ -23,7 +30,7 @@ import java.util.List;
  */
 public class ContactFragment extends Fragment implements ContactView, SwipeRefreshLayout.OnRefreshListener {
 
-
+    private static final String TAG = "ContactFragment";
     private ContactLayout mContactLayout;
     private ContactPresenter mContactPresenter;
     private ContactAdapter mContactAdapter;
@@ -46,6 +53,16 @@ public class ContactFragment extends Fragment implements ContactView, SwipeRefre
          */
         mContactPresenter.initContact();
         mContactLayout.setOnRefreshListener(this);
+        //将当前对象作为EventBus的订阅者，这样当前对象就可以接收发布者发送的消息了
+        EventBus.getDefault().register(this);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(ContactUpdateEvent contactUpdateEvent){
+        Log.d(TAG, "onEvent: "+contactUpdateEvent);
+        Toast.makeText(getActivity(), "收到通讯录变化了："+contactUpdateEvent, Toast.LENGTH_SHORT).show();
+        //更新通讯录
+        mContactPresenter.updateFromServer();
 
     }
 
@@ -69,5 +86,12 @@ public class ContactFragment extends Fragment implements ContactView, SwipeRefre
     public void onRefresh() {
         //刷新是业务层的，所以需要放到Presenter层里面去处理
         mContactPresenter.updateFromServer();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        //当当前View销毁的时候，取消订阅
+        EventBus.getDefault().unregister(this);
     }
 }
