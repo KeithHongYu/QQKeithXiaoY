@@ -4,11 +4,15 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.TextView;
 
 import com.ashokvarma.bottomnavigation.BottomNavigationBar;
 import com.ashokvarma.bottomnavigation.BottomNavigationItem;
+import com.it.keithxiaoy.qqkeithxiaoy.view.activity.AddFriendActivity;
 import com.it.keithxiaoy.qqkeithxiaoy.view.fragment.FragmentFactory;
 
 public class MainActivity extends BaseActivity {
@@ -92,5 +96,33 @@ public class MainActivity extends BaseActivity {
 
             }
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main,menu);
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuBuilder menuBuilder = (MenuBuilder) menu;
+        menuBuilder.setOptionalIconsVisible(true);
+        return true;
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_item_add_friend:
+                startActivity(AddFriendActivity.class,false);
+                break;
+            case R.id.menu_item_share_friend:
+                break;
+            case R.id.menu_item_about:
+                break;
+        }
+        return true;
     }
 }
