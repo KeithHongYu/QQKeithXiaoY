@@ -62,11 +62,11 @@ public class ContactPresenterImpl implements ContactPresenter {
                     ThreadUtils.runMainThread(new Runnable() {
                         @Override
                         public void run() {
-                            mContactView.onUpdateContact(true,null);
+                            mContactView.onUpdateContact(true, null);
                         }
                     });
                     // 缓存到本地数据库
-                    DBUtils.updateContacts(currentUser,contactsList);
+                    DBUtils.updateContacts(currentUser, contactsList);
 
                 } catch (final HyphenateException e) {
                     e.printStackTrace();
@@ -74,11 +74,39 @@ public class ContactPresenterImpl implements ContactPresenter {
                     ThreadUtils.runMainThread(new Runnable() {
                         @Override
                         public void run() {
-                            mContactView.onUpdateContact(false,e.getMessage());
+                            mContactView.onUpdateContact(false, e.getMessage());
                         }
                     });
 
                 }
+            }
+        });
+    }
+
+    @Override
+    public void deteleContact(final String username) {
+        ThreadUtils.runSubThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    EMClient.getInstance().contactManager().deleteContact(username);
+                    //删除成功
+                    adterDelete(true, username);
+                } catch (HyphenateException e) {
+                    e.printStackTrace();
+                    //删除失败
+                    adterDelete(false, username);
+                }
+            }
+        });
+
+    }
+
+    private void adterDelete(final boolean b, final String username) {
+        ThreadUtils.runMainThread(new Runnable() {
+            @Override
+            public void run() {
+                mContactView.adterDelete(b, username);
             }
         });
     }

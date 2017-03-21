@@ -8,4 +8,6 @@ public interface ContactPresenter {
     void initContact();
 
     void updateFromServer();
+
+    void deteleContact(String username);
 }

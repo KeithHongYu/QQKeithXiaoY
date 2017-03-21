@@ -3,6 +3,7 @@ package com.it.keithxiaoy.qqkeithxiaoy.view.fragment;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
@@ -16,6 +17,7 @@ import com.it.keithxiaoy.qqkeithxiaoy.adapter.ContactAdapter;
 import com.it.keithxiaoy.qqkeithxiaoy.event.ContactUpdateEvent;
 import com.it.keithxiaoy.qqkeithxiaoy.presenter.ContactPresenter;
 import com.it.keithxiaoy.qqkeithxiaoy.presenter.ContactPresenterImpl;
+import com.it.keithxiaoy.qqkeithxiaoy.util.ToastUtils;
 import com.it.keithxiaoy.qqkeithxiaoy.view.ContactView;
 import com.it.keithxiaoy.qqkeithxiaoy.widget.ContactLayout;
 
@@ -28,7 +30,7 @@ import java.util.List;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ContactFragment extends Fragment implements ContactView, SwipeRefreshLayout.OnRefreshListener {
+public class ContactFragment extends Fragment implements ContactView, SwipeRefreshLayout.OnRefreshListener, ContactAdapter.OnContactItemClickListener {
 
     private static final String TAG = "ContactFragment";
     private ContactLayout mContactLayout;
@@ -58,9 +60,9 @@ public class ContactFragment extends Fragment implements ContactView, SwipeRefre
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEvent(ContactUpdateEvent contactUpdateEvent){
-        Log.d(TAG, "onEvent: "+contactUpdateEvent);
-        Toast.makeText(getActivity(), "收到通讯录变化了："+contactUpdateEvent, Toast.LENGTH_SHORT).show();
+    public void onEvent(ContactUpdateEvent contactUpdateEvent) {
+        Log.d(TAG, "onEvent: " + contactUpdateEvent);
+        Toast.makeText(getActivity(), "收到通讯录变化了：" + contactUpdateEvent, Toast.LENGTH_SHORT).show();
         //更新通讯录
         mContactPresenter.updateFromServer();
 
@@ -69,7 +71,7 @@ public class ContactFragment extends Fragment implements ContactView, SwipeRefre
     @Override
     public void onInitContact(List<String> contactsList) {
         mContactAdapter = new ContactAdapter(contactsList);
-
+        mContactAdapter.setonContactItemClickListener(this);
         mContactLayout.setAdapter(mContactAdapter);
     }
 
@@ -82,6 +84,7 @@ public class ContactFragment extends Fragment implements ContactView, SwipeRefre
         mContactLayout.setRefreshing(false);
     }
 
+
     @Override
     public void onRefresh() {
         //刷新是业务层的，所以需要放到Presenter层里面去处理
@@ -93,5 +96,31 @@ public class ContactFragment extends Fragment implements ContactView, SwipeRefre
         super.onDestroyView();
         //当当前View销毁的时候，取消订阅
         EventBus.getDefault().unregister(this);
+    }
+
+    @Override
+    public void onClick(String username) {
+        //跳转到聊天界面
+        ToastUtils.showToast(getActivity(), "跟:"+username+"好友聊天愉快哦~~");
+    }
+
+    @Override
+    public void onLongClick(final String username) {
+        Snackbar.make(mContactLayout, "确定和" + username + "解除好友关系吗？？", Snackbar.LENGTH_LONG).setAction("确定", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //删除好友，属于业务层面,所以需要放到Presenter层里面去处理
+                mContactPresenter.deteleContact(username);
+            }
+        }).show();
+    }
+
+    @Override
+    public void adterDelete(boolean isSuccess, String username) {
+        if (isSuccess) {
+            ToastUtils.showToast(getContext(), "删除成功" + username);
+        } else {
+            ToastUtils.showToast(getContext(), "删除失败" + username);
+        }
     }
 }

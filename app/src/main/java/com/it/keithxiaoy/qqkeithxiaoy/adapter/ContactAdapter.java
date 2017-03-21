@@ -39,7 +39,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
          */
 
 
-        String contact = mContactsList.get(position);
+        final String contact = mContactsList.get(position);
         String inital = StringUtils.getInital(contact);
         holder.mTvUsername.setText(contact);
         holder.mTvSection.setText(inital);
@@ -53,8 +53,19 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
                 holder.mTvSection.setVisibility(View.VISIBLE);
             }
         }
-
-
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mOnContactItemClickListener.onClick(contact);
+            }
+        });
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+              mOnContactItemClickListener.onLongClick(contact);
+                return true;
+            }
+        });
 
     }
 
@@ -79,5 +90,17 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
             mTvUsername = (TextView) itemView.findViewById(R.id.tv_username);
         }
     }
+
+    public interface OnContactItemClickListener{
+        void onClick(String username);
+        void onLongClick(String username);
+    }
+
+    private OnContactItemClickListener mOnContactItemClickListener;
+
+    public void setonContactItemClickListener(OnContactItemClickListener onContactItemClickListener){
+        this.mOnContactItemClickListener = onContactItemClickListener ;
+    }
+
 
 }

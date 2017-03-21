@@ -10,4 +10,6 @@ public interface ContactView {
     void onInitContact(List<String> contactsList);
 
     void onUpdateContact(boolean isSuccess, String message);
+
+    void adterDelete(boolean isSuccess, String username);
 }
